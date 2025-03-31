@@ -1,0 +1,138 @@
+---
+- name: practica almacenamiento
+  hosts: lnode
+  become: yes
+  tasks:
+    - name: Crear primera particiones en xvdb
+      community.general.parted:
+        device: /dev/xvdb
+        number: 1
+        part_end: 1GiB
+        state: present
+      tags:
+        - node
+
+    - name: Crear segunda particiones en xvdb
+      community.general.parted:
+        device: /dev/xvdb
+        number: 2
+        part_start: 1GiB
+        part_end: 2GiB
+        state: present
+      tags:
+        - node
+
+    - name: Ver datos de xvdb
+      community.general.parted:
+        device: /dev/xvdb
+        state: info
+      register: datos
+      tags:
+        - node
+      
+    - name: ver los datos
+      ansible.builtin.debug:
+        var: datos
+      tags:
+        - node
+
+    - name: Crear un Volume Group en las particiones
+      community.general.lvg:
+        vg: grupo2
+        pvs:
+          - /dev/xvdb1
+          - /dev/xvdb2
+      tags:
+        - vg
+
+    - name: Recuperar informacion de los vg
+      ansible.builtin.shell:
+        cmd: 'vgdisplay | grep "VG Name"'
+      register: datos
+      tags:
+        - vg
+
+    - name: Ver informacion
+      ansible.builtin.debug:
+        var: datos
+      tags: vg
+
+    - name: Crear un volumen logico en el grupo grupo2
+      community.general.lvol:
+        vg: grupo2
+        lv: "{{ item.name }}"
+        size: 256
+      loop:
+        - { name: "lvol1" }
+        - { name: "lvol2" }
+      tags:
+        - lv
+
+    - name: Ver datos del volumen
+      ansible.builtin.shell: 
+       cmd: 'lvdisplay | grep "LV Name"'
+      register: datos
+      tags:
+        - lv
+      
+    - name: ver los datos
+      ansible.builtin.debug:
+        var: datos.stdout_lines
+      tags:
+        - lv
+
+    - name: Crear sistema de ficheros
+      community.general.filesystem:
+        dev: "/dev/grupo2/{{ item.name }}"
+        fstype: ext4
+        state: present
+      loop:
+        - { name: "lvol1" }
+        - { name: "lvol2" }
+      tags:
+        - file
+
+    - name: Crear un punto de montaje en lvol1 llamado /imagenes
+      ansible.builtin.file:
+        path: /imagenes
+        state: directory
+      tags:
+        - file
+
+    - name: Crear un punto de montaje en lvol2 llamado /videos
+      ansible.builtin.file:
+        path: /videos
+        state: directory
+      tags:
+        - file
+
+    - name: Montar el sistema de ficheros en lvol1
+      ansible.posix.mount:
+        path: /imagenes
+        src: /dev/grupo2/lvol1
+        fstype: ext4
+        state: mounted
+      tags:
+        - file
+
+    - name: Montar el sistema de ficheros en lvol2
+      ansible.posix.mount:
+        path: /videos
+        src: /dev/grupo2/lvol2
+        fstype: ext4
+        state: mounted
+      tags:
+        - file
+
+    - name: comprobar montaje
+      ansible.builtin.shell:
+        cmd: "df -h"
+      register: montaje
+      tags:
+        - file
+
+    - name: Ver montaje
+      ansible.builtin.debug:
+        var: montaje.stdout_lines
+      tags:
+        - file
