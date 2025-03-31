@@ -1,0 +1,47 @@
+---
+- name: instalar lamp
+  hosts: anode
+
+  tasks:
+
+    - name: actualizar repos
+      apt:
+        update_cache: yes
+
+    - name: instalar apache
+      apt:
+        name: apache2
+        state: present
+
+    - name: arrancar apache
+      service: 
+        name: apache2
+        state: started
+
+    - name: instalar MariaDB
+      apt:
+        name: mariadb-server
+        state: present
+
+    - name: instalar paquetes php
+      apt:
+        name:
+          - php
+          - php-mysql
+          - libapache2-mod-php
+        state: present
+
+    - name: reiniciar apache
+      service:
+        name: apache2
+        state: restarted
+
+    - name: copiar el php
+      copy:
+        src: phpinfo.php
+        dest: /var/www/html
+        mode: '0755'
+
+...
+
+

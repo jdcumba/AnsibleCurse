@@ -1,0 +1,19 @@
+#### PLAY PARA CREAR UN SERVIDOR POSTGRES
+---
+- name: play de instalacion postgre con rol
+  hosts: anode
+  become: yes
+
+  tasks:
+
+  - name: primera tarea
+    ansible.builtin.debug:
+      msg: "comienza el juego"
+
+  #- name: incluimos el rol ahora
+   # import_role:
+    #  name: desarrollo
+
+  - name: Ultima tarea
+    ansible.builtin.debug:
+      msg: "Se ha instalado el software {{software}}"

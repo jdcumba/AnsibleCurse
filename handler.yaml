@@ -1,0 +1,32 @@
+---
+- name: practica handler
+  hosts: anode
+
+  tasks:
+  - name: copiar backup
+    ansible.builtin.copy:
+      src: backup.sh
+      dest: /tmp/backup.sh
+      mode: '0744'
+
+  - name: lanzar backup
+    ansible.builtin.shell: nohup /tmp/backup.sh </dev/null >/dev/null 2>&1 &      
+
+  - name: usamos until
+    ansible.builtin.shell: 
+      cmd: cat /tmp/backup.terminado
+    register: result
+    until: result.stdout=="Fin de Backup"
+    retries: 10
+    delay: 10
+    notify:
+      - guardar_backup_IMPORTANTE
+    
+  handlers:
+  - name: guardar_backup_IMPORTANTE
+    ansible.builtin.fetch:
+      src: /tmp/copia.tar
+      dest: /tmp/copia.tar
+      flat: yes
+...
+

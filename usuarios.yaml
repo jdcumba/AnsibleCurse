@@ -1,0 +1,20 @@
+---
+- name: trabajar con usuarios
+  hosts: anode
+
+  tasks:
+    - name: crear usuario simple
+      user:
+        name: usu1
+
+    - name: crear grupo
+      group:
+        name: grupo1
+        state: present
+
+    - name: crear usuario del grupo1
+      user:
+        name: usu2
+        group: grupo1
+        shell: /bin/bash
+        home: /home/usuario2

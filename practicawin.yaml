@@ -1,0 +1,31 @@
+---
+- name: practica windowss
+  hosts: windows
+
+  tasks:
+    - name: descargar apache
+      ansible.windows.win_get_url:
+        url: https://archive.apache.org/dist/httpd/binaries/win32/httpd-2.2.25-win32-x86-no_ssl.msi
+        dest: C:\prueba\apache.msi
+
+    - name: instalar win
+      ansible.windows.win_package:
+        path: C:\prueba\apache.msi
+        state: present
+
+    - name: configurar apache
+      community.windows.win_lineinfile:
+        path: C:\Program Files (x86)\Apache Software Foundation\Apache2.2\conf\httpd.conf
+        regex: '^ServerAdmin'
+        line: 'ServerAdmin germancumba@hotmail.com'
+
+    - name: convertir en servicio
+      ansible.windows.win_command:
+        cmd: cmd.exe / c '"C:\Program Files (x86)\Apache Software Foundation\Apache2.2\bin\httpd.exe" "-k install"'
+   
+    - name: cambio titulo
+      ansible.windows.win_copy:
+        content: <h1> pruena ansible </h1>
+        dest: C:\Program Files (x86)\Apache Software Foundation\Apache2.2\htdocs\index.html
+
+...

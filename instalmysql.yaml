@@ -1,0 +1,19 @@
+---
+- name: play de instalacion mysql con rol
+  hosts: anode
+#  roles:
+#     - desarrollo
+
+  tasks:
+
+  - name: primera tarea
+    ansible.builtin.debug:
+      msg: "comienza el juego"
+
+  - name: incluimos el rol ahora
+    import_role:
+      name: desarrollo
+
+  - name: Ultima tarea
+    ansible.builtin.debug:
+      msg: "Se ha instalado el software {{software}}"

@@ -1,0 +1,61 @@
+---
+- name: Instalar y activar Apache en Debian y Amazon Linux
+  hosts: anode, lnode
+  become: true
+
+  tasks:
+    - name: Forzar uso de yum como gestor de paquetes
+      set_fact:
+        ansible_pkg_mgr: yum
+      tags:
+          - amazon
+    - name: Instalar Apache en Debian
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+        update_cache: yes
+      tags:
+          - debian
+
+    - name: Instalar Apache en Amazon Linux
+      yum:
+        name: httpd
+        state: present
+      tags:
+          - amazon
+
+    - name: Iniciar y habilitar Apache en Debian
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: yes
+      tags:
+          - debian
+
+    - name: Iniciar y habilitar Apache en Amazon Linux
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+      tags:
+          - amazon
+
+    - name: copiar index_amazon
+      copy:
+        src: /home/ubuntu/practicas/practica_tags/index_amazon.html
+        dest: /var/www/html/index.html
+      tags:
+          - amazon
+    
+    - name: copiar index_debian
+      ansible.builtin.copy:
+        src: /home/ubuntu/practicas/practica_tags/index_debian.html
+        dest: /var/www/html/index.html
+      tags:
+          - debian
+
+    - name: mensaje final
+      ansible.builtin.debug:
+        msg: "fin del proceso"
+      tags:
+          - always

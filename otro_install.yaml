@@ -1,0 +1,17 @@
+---
+- name: prueba hosts
+  hosts: anode
+
+  tasks:
+
+  - name: primera tarea
+    ansible.builtin.debug:
+      msg: "comienza el juego"
+
+  #- name: incluimos el rol ahora
+   # import_role:
+    #  name: desarrollo
+
+  - name: Ultima tarea
+    ansible.builtin.debug:
+      msg: "Se ha instalado el software {{software}}"

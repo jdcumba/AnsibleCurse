@@ -1,0 +1,17 @@
+---
+- name: desplegar war
+  hosts: anode
+
+  tasks:      
+    - name: copiar war
+      ansible.builtin.copy:
+        src: /home/ubuntu/practicas/leccion7/ejemplo.war
+        dest: /opt/tomcat/webapps
+
+    - name: cambiar propietario
+      file:      
+        path: /opt/tomcat/webapps/ejemplo.war
+        owner: tomcat
+        group: tomcat
+
+...

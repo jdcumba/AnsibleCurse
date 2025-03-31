@@ -1,0 +1,37 @@
+---
+- name: crear usuarios con bucles
+  hosts: anode
+  become: yes
+  vars:
+    - fichero: /tmp/usuarios.txt
+
+  tasks:
+    - name: crear el fichero
+      file:
+        path: "{{fichero}}"
+        state: "touch"
+        mode: '0755'
+    - name: añadir usuarios
+      ansible.builtin.lineinfile:
+        path: "{{fichero}}"
+        line: "{{item}}"
+        create: yes
+      loop:
+       - usuario1
+       - usuario2
+
+    - name: obtenerlo
+      ansible.builtin.shell: cat "{{fichero}}"
+      register: contenido
+
+    - name: vislualizarlo
+      ansible.builtin.debug:
+        msg: "{{contenido}}"
+
+    - name: crear usuarios con bucle
+      ansible.builtin.user:
+        name: "{{item}}"
+        state: present
+      loop: "{{contenido.stdout_lines}}"
+...
+

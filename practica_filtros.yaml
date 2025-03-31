@@ -1,0 +1,69 @@
+---
+- name: convertir diccionario en lista
+  hosts: anode
+
+  vars:
+    entorno:
+      Proyecto: desarrollo
+      Responsable: Pedro
+      Personas: 10
+      Sistema: Linux
+    lista1: [2,4,8,9,1,15,20]
+    lista2: [2,9,25,34,2]
+
+  tasks:
+#  - name: convertirlo
+#    ansible.builtin.debug:
+#      var: entorno | dict2items
+
+#  - name: ver valor
+#    ansible.builtin.debug:
+#      msg: "{{ item.value }}"
+#    loop: "{{ entorno | dict2items }}"
+
+#  - name: Convertir cadena en lista
+#    ansible.builtin.debug:
+#      msg: "{{item | split(':')}}" 
+#    with_lines: cat /etc/passwd
+
+  - name: valores uniques
+    ansible.builtin.debug:
+      msg: "{{lista1 | unique}}"
+  
+  - name: valores union
+    ansible.builtin.debug:
+      msg: "{{lista1 | union(lista2)}}"
+
+  - name: valores intersect
+    ansible.builtin.debug:
+      msg: "{{lista1 | intersect(lista2)}}"
+
+  - name: valores difference
+    ansible.builtin.debug:
+      msg: "{{lista1 | difference(lista2)}}"
+
+  - name: visualizar fecha en mayus
+    ansible.builtin.debug:
+      msg: "{{ansible_facts.date_time | upper}}"
+
+  - name: Convertir IP en lista
+    ansible.builtin.debug:
+      msg: "{{ansible_facts.all_ipv4_addresses[0] | split('.') }}"
+    register: ips
+
+  - name: Ver última posición de la IP y convertirlo a entero
+    ansible.builtin.debug:
+      msg: "{{ ips.msg[3] | int }}"
+    register: ips2
+
+  - name: Comprobar que devuelve
+    ansible.builtin.debug:
+      var: ips2
+
+  - name: Instalar PHP
+    ansible.builtin.apt:
+      name: php
+      state: present
+    become: yes
+    when: ips2.msg | int > 6 and ansible_distribution | lower == 'ubuntu'
+...
