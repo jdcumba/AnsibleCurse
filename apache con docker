@@ -1,0 +1,27 @@
+---
+- name: instalar apache con docker
+  hosts: anode
+  become: yes
+  tasks:
+  - name: Crear directorio /web si no existe
+    ansible.builtin.file:
+      path: /web
+      state: directory
+      mode: '0755'
+
+  - name: crear contenedor apache
+    community.docker.docker_container:
+      name: miapache
+      image: httpd:latest
+      ports:
+        - 7070:80
+      detach: true
+      volumes:
+        - "/web:/usr/local/apache2/htdocs"
+
+  - name: copiar a web la pagina espacio
+    ansible.builtin.copy:
+      src: espacio/
+      dest: /web/
+      directory_mode: '0755'
+...
