@@ -1,0 +1,39 @@
+---
+- name: configurar contenderoes en red2
+  hosts: anode
+
+  tasks:
+  - name: crear red2
+    community.docker.docker_network:
+      name: red2
+      ipam_config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1
+
+  - name: crear contenedor mariadb
+    community.docker.docker_container:
+      name: mimariadb
+      image: mariadb
+      networks:
+        - name: red2
+      detach: true
+      env:
+        MARIADB_ROOT_PASSWORD: jonnyc
+        MARIADB_DATABASE: mariabbdd
+        MARIADB_USER: usuariomaria
+        MARIADB_PASSWORD: jonnyc
+
+  - name: crear contenedor wordpress en red2
+    community.docker.docker_container:
+      name: miwordpress
+      image: wordpress
+      ports:
+        - 9090:80 #el puerto de wordpress es 80
+      networks:
+        - name: red2
+      detach: true
+      env:
+        WORDPRESS_DB_HOST: mimariadb
+        WORDPRESS_DB_USER: usuariomaria
+        WORDPRESS_DB_PASSWORD: jonnyc
+        WORDPRESS_DB_NAME: mariabbdd
